@@ -1,0 +1,16 @@
+[package]
+name = "ip-api-client"
+version = "0.1.0"
+authors = ["Ivan <mixero@pepperbot.net>"]
+edition = "2021"
+description = "The client (based on ip-api.com api) allows you to get information about the IP address"
+documentation = "https://docs.rs/ip-api-client"
+readme = "README.md"
+homepage = "https://github.com/Mixerou/ip-api-client-rs"
+repository = "https://github.com/Mixerou/ip-api-client-rs"
+license = "MIT"
+license-file = "LICENSE"
+keywords = ["ip", "api"]
+categories = ["api-bindings"]
+
+[dependencies]
