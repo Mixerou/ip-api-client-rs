@@ -9,7 +9,6 @@ readme = "README.md"
 homepage = "https://github.com/Mixerou/ip-api-client-rs"
 repository = "https://github.com/Mixerou/ip-api-client-rs"
 license = "MIT"
-license-file = "LICENSE"
 keywords = ["ip", "api"]
 categories = ["api-bindings"]
 
