@@ -1,6 +1,6 @@
 [package]
 name = "ip-api-client"
-version = "0.1.0"
+version = "0.2.0" # don't forget edit version in README.md
 authors = ["Ivan <mixero@pepperbot.net>"]
 edition = "2021"
 description = "The client (based on ip-api.com api) allows you to get information about the IP address"
@@ -13,3 +13,7 @@ keywords = ["ip", "api"]
 categories = ["api-bindings"]
 
 [dependencies]
+hyper = { version = "0.14.18", features = ["client", "http1", "runtime"] }
+serde = { version = "1.0.136", features = ["derive"] }
+serde_json = "1.0.79"
+tokio = { version = "1.17.0", features = ["macros", "rt-multi-thread",] }
