@@ -4,7 +4,7 @@
 //!
 //! ```rust
 //! use ip_api_client as Client;
-//! use ip_api_client::IpData;
+//! use ip_api_client::{IpApiLanguage, IpData};
 //!
 //! // You can
 //! // `generate_empty_config` (to create your own config from scratch)
@@ -15,6 +15,8 @@
 //!     .include_country()
 //!     // or `exclude_currency` if this field is already included in the generated config
 //!     .include_currency()
+//!     // available languages: de/en (default)/es/fr/ja/pt-Br/ru/zh-CN
+//!     .set_language(IpApiLanguage::De)
 //!     // `make_request` takes "ip"/"domain"/"empty string (if you want to request your ip)"
 //!     .make_request("1.1.1.1").unwrap();
 //!
@@ -71,6 +73,33 @@ pub enum IpApiError {
     ///
     /// May contain additional information
     UnexpectedError(Option<String>),
+}
+
+/// Represents all available languages for [`IpData`]
+pub enum IpApiLanguage {
+    /// Deutsch (German)
+    De,
+
+    /// English (default)
+    En,
+
+    /// Español (Spanish)
+    Es,
+
+    /// Français (French)
+    Fr,
+
+    /// 日本語 (Japanese)
+    Ja,
+
+    /// Português - Brasil (Portuguese - Brasil)
+    PtBr,
+
+    /// Русский (Russian)
+    Ru,
+
+    /// 中国 (Chinese)
+    ZhCn,
 }
 
 #[derive(Deserialize)]
@@ -218,6 +247,7 @@ pub struct IpApiConfig {
     is_proxy_included: bool,
     is_hosting_included: bool,
     is_query_included: bool,
+    language: IpApiLanguage,
 }
 
 impl IpApiConfig {
@@ -228,7 +258,22 @@ impl IpApiConfig {
     pub async fn make_request(self, target: &str) -> Result<IpData, IpApiError> {
         let client = Client::new();
 
-        let mut response = client.get(format!("http://ip-api.com/json/{}?fields={}", target, self.numeric_field).parse().unwrap()).await.unwrap();
+        let uri = format!("http://ip-api.com/json/{}?fields={}{}",
+                          target,
+                          self.numeric_field,
+                          match self.language {
+                              IpApiLanguage::De => "&lang=de",
+                              IpApiLanguage::Es => "&lang=es",
+                              IpApiLanguage::Fr => "&lang=fr",
+                              IpApiLanguage::Ja => "&lang=ja",
+                              IpApiLanguage::PtBr => "&lang=pt-BR",
+                              IpApiLanguage::Ru => "&lang=ru",
+                              IpApiLanguage::ZhCn => "&lang=zh-CN",
+                              _ => "",
+                          }
+        );
+
+        let mut response = client.get(uri.parse().unwrap()).await.unwrap();
 
         if response.status() == 429 {
             return Err(IpApiError::RateLimit(response.headers().get("X-Ttl").unwrap().to_str().unwrap().parse().unwrap()));
@@ -716,6 +761,13 @@ impl IpApiConfig {
 
         self
     }
+
+    /// Set custom language for [`IpData`]
+    pub fn set_language(mut self, language: IpApiLanguage) -> Self {
+        self.language = language;
+
+        self
+    }
 }
 
 /// Create an empty config to create your own from scratch
@@ -745,6 +797,7 @@ pub fn generate_empty_config() -> IpApiConfig {
         is_proxy_included: false,
         is_hosting_included: false,
         is_query_included: false,
+        language: IpApiLanguage::En,
     }
 }
 
@@ -775,6 +828,7 @@ pub fn generate_minimum_config() -> IpApiConfig {
         is_proxy_included: false,
         is_hosting_included: false,
         is_query_included: false,
+        language: IpApiLanguage::En,
     }
 }
 
@@ -805,5 +859,6 @@ pub fn generate_maximum_config() -> IpApiConfig {
         is_proxy_included: true,
         is_hosting_included: true,
         is_query_included: true,
+        language: IpApiLanguage::En,
     }
 }
