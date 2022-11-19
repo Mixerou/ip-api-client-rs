@@ -1,4 +1,5 @@
-//! The client (based on [ip-api.com API](https://ip-api.com/docs/api:json)) allows you to get information about the IP address
+//! The client (based on [ip-api.com API](https://ip-api.com/docs/api:json))
+//! allows you to get information about the IP address
 //!
 //! # Example
 //!
@@ -36,7 +37,13 @@ mod tests {
 
     #[test]
     fn make_request() {
-        assert_eq!(generate_empty_config().include_query().make_request("1.1.1.1").unwrap().query.unwrap(), String::from("1.1.1.1"));
+        assert_eq!(
+            generate_empty_config()
+                .include_query()
+                .make_request("1.1.1.1").unwrap()
+                .query.unwrap(),
+            String::from("1.1.1.1")
+        );
     }
 }
 
@@ -57,7 +64,8 @@ pub enum IpApiError {
     /// 192.168.1.1
     PrivateRange,
 
-    /// [ip-api.com API](https://ip-api.com/docs/api:json) is limited to 45 requests per minute from an IP address
+    /// [ip-api.com API](https://ip-api.com/docs/api:json) is limited to 45 requests per minute
+    /// from one IP address
     ///
     /// Contains the remaining time before a possible re-request in seconds
     RateLimit(u8),
@@ -152,7 +160,8 @@ pub struct IpData {
     /// Country name
     pub country: Option<String>,
 
-    /// Two-letter country code [ISO 3166-1 alpha-2](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2)
+    /// Two-letter country code
+    /// [ISO 3166-1 alpha-2](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2)
     pub country_code: Option<String>,
 
     /// Region/state short code (FIPS or ISO)
@@ -191,13 +200,15 @@ pub struct IpData {
     /// Organization name
     pub org: Option<String>,
 
-    /// AS number and organization, separated by space (RIR). Empty for IP blocks not being announced in BGP tables.
+    /// AS number and organization, separated by space (RIR).
+    /// Empty for IP blocks not being announced in BGP tables.
     ///
     /// # Notice
     ///
     /// We use `as_field` instead of `as`
     /// (As stated in the [ip-api.com API documentation](https://ip-api.com/docs/api:json#as))
-    /// since it is a [strict keyword](https://doc.rust-lang.org/reference/keywords.html#strict-keywords) in rust,
+    /// since it's a
+    /// [strict keyword](https://doc.rust-lang.org/reference/keywords.html#strict-keywords) in rust,
     /// such as `pub`, `impl` or `struct`.
     #[serde(rename = "as")]
     pub as_field: Option<String>,
@@ -221,7 +232,8 @@ pub struct IpData {
     pub query: Option<String>,
 }
 
-/// Configuration structure allows you to customize the requested fields in the request to save traffic
+/// Configuration structure allows you to customize the requested fields in the request
+/// to save traffic
 pub struct IpApiConfig {
     numeric_field: u32,
     is_continent_included: bool,
@@ -276,7 +288,12 @@ impl IpApiConfig {
         let mut response = client.get(uri.parse().unwrap()).await.unwrap();
 
         if response.status() == 429 {
-            return Err(IpApiError::RateLimit(response.headers().get("X-Ttl").unwrap().to_str().unwrap().parse().unwrap()));
+            return Err(IpApiError::RateLimit(
+                response
+                    .headers().get("X-Ttl").unwrap()
+                    .to_str().unwrap()
+                    .parse().unwrap()
+            ));
         }
 
         let body = response.body_mut().data().await;
