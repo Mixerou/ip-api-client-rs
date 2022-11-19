@@ -302,7 +302,7 @@ impl IpApiConfig {
 
         let ip_data: IpApiMessage = serde_json::from_str(body).unwrap();
 
-        if ip_data.message != None {
+        if ip_data.message.is_some() {
             return match ip_data.message.unwrap().as_str() {
                 "invalid query" => Err(IpApiError::InvalidQuery),
                 "private range" => Err(IpApiError::PrivateRange),
