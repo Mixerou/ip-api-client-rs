@@ -1,7 +1,7 @@
 [package]
 name = "ip-api-client"
 version = "0.3.0" # don't forget edit version in README.md
-authors = ["Ivan <mixero@pepperbot.net>"]
+authors = ["Ivan <contact@mixero.dev>"]
 edition = "2021"
 description = "The client (based on ip-api.com api) allows you to get information about the IP address"
 documentation = "https://docs.rs/ip-api-client"
