@@ -25,7 +25,6 @@
 //! ```
 
 #![deny(missing_docs)]
-#![warn(rustdoc::missing_doc_code_examples)]
 
 use hyper::body::HttpBody;
 use hyper::Client;
