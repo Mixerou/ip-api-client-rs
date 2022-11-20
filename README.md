@@ -8,7 +8,7 @@ Add to project
 
 ```toml
 [dependencies]
-ip-api-client = "0.3.0"
+ip-api-client = "0.4.0"
 ```
 
 Write some Rust
@@ -33,6 +33,18 @@ fn main() {
           .make_request("1.1.1.1").unwrap();
 
   println!("{}'s national currency is {}", ip_data.country.unwrap(), ip_data.currency.unwrap());
+
+  // If you want to request more than one ip, you can use `make_batch_request`
+  let ip_batch_data: Vec<IpData> = Client::generate_empty_config()
+          .include_isp()
+          // `make_batch_request` takes "IPv4"/"IPv6"
+          .make_batch_request(vec!["1.1.1.1", "8.8.8.8"]).unwrap();
+
+  println!(
+    "1.1.1.1 belongs to `{}` and 8.8.8.8 belongs to `{}`",
+    ip_batch_data.get(0).unwrap().isp.as_ref().unwrap(),
+    ip_batch_data.get(1).unwrap().isp.as_ref().unwrap(),
+  );
 }
 ```
 
@@ -47,6 +59,7 @@ fn main() {
 
 - [x] Request IP address information with a configuration structure that allows you to customize the requested fields in the request to save traffic.
 - [x] Get information about Ip in different languages
+- [x] Query multiple IP addresses in one HTTP request.
 - [ ] Block all requests until the end of the limit if the last request was rate-limited.
 - [ ] Ability to cache all responses with automatic removal of old ip-data when the maximum cache size is reached.
 

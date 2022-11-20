@@ -22,17 +22,30 @@
 //!     .make_request("1.1.1.1").unwrap();
 //!
 //! println!("{}'s national currency is {}", ip_data.country.unwrap(), ip_data.currency.unwrap());
+//!
+//! // If you want to request more than one ip, you can use `make_batch_request`
+//! let ip_batch_data: Vec<IpData> = Client::generate_empty_config()
+//! .include_isp()
+//! // `make_batch_request` takes "IPv4"/"IPv6"
+//! .make_batch_request(vec!["1.1.1.1", "8.8.8.8"]).unwrap();
+//!
+//! println!(
+//!     "1.1.1.1 belongs to `{}` and 8.8.8.8 belongs to `{}`",
+//!     ip_batch_data.get(0).unwrap().isp.as_ref().unwrap(),
+//!     ip_batch_data.get(1).unwrap().isp.as_ref().unwrap(),
+//! );
 //! ```
 
 #![deny(missing_docs)]
 
 use hyper::body::HttpBody;
-use hyper::Client;
+use hyper::{Body, Client, Method, Request, Response};
 use serde::Deserialize;
+use serde_json::json;
 
 #[cfg(test)]
 mod tests {
-    use crate::generate_empty_config;
+    use crate::{generate_empty_config, IpData};
 
     #[test]
     fn make_request() {
@@ -43,6 +56,16 @@ mod tests {
                 .query.unwrap(),
             String::from("1.1.1.1")
         );
+    }
+
+    #[test]
+    fn make_batch_request() {
+        let ips: Vec<IpData> = generate_empty_config()
+            .include_query()
+            .make_batch_request(vec!["1.1.1.1", "8.8.8.8"]).unwrap();
+
+        assert_eq!(ips.get(0).unwrap().query, Some(String::from("1.1.1.1")));
+        assert_eq!(ips.get(1).unwrap().query, Some(String::from("8.8.8.8")))
     }
 }
 
@@ -262,30 +285,30 @@ pub struct IpApiConfig {
 }
 
 impl IpApiConfig {
-    /// Making a request to [ip-api.com API](https://ip-api.com/docs/api:json)
-    ///
-    /// `target` can be "ip"/"domain"/"empty string (if you want to request your ip)"
-    #[tokio::main]
-    pub async fn make_request(self, target: &str) -> Result<IpData, IpApiError> {
-        let client = Client::new();
+    fn build_uri(
+        resource: &str,
+        target: Option<&str>,
+        fields: u32,
+        language: IpApiLanguage,
+    ) -> String {
+        format!("http://ip-api.com/{}/{}?fields={}{}",
+                resource,
+                target.unwrap_or(""),
+                fields,
+                match language {
+                    IpApiLanguage::De => "&lang=de",
+                    IpApiLanguage::Es => "&lang=es",
+                    IpApiLanguage::Fr => "&lang=fr",
+                    IpApiLanguage::Ja => "&lang=ja",
+                    IpApiLanguage::PtBr => "&lang=pt-BR",
+                    IpApiLanguage::Ru => "&lang=ru",
+                    IpApiLanguage::ZhCn => "&lang=zh-CN",
+                    _ => "",
+                }
+        )
+    }
 
-        let uri = format!("http://ip-api.com/json/{}?fields={}{}",
-                          target,
-                          self.numeric_field,
-                          match self.language {
-                              IpApiLanguage::De => "&lang=de",
-                              IpApiLanguage::Es => "&lang=es",
-                              IpApiLanguage::Fr => "&lang=fr",
-                              IpApiLanguage::Ja => "&lang=ja",
-                              IpApiLanguage::PtBr => "&lang=pt-BR",
-                              IpApiLanguage::Ru => "&lang=ru",
-                              IpApiLanguage::ZhCn => "&lang=zh-CN",
-                              _ => "",
-                          }
-        );
-
-        let mut response = client.get(uri.parse().unwrap()).await.unwrap();
-
+    fn check_response(response: &Response<Body>) -> Result<(), IpApiError> {
         if response.status() == 429 {
             return Err(IpApiError::RateLimit(
                 response
@@ -295,14 +318,12 @@ impl IpApiConfig {
             ));
         }
 
-        let body = response.body_mut().data().await;
-        let body = body.unwrap().unwrap().to_vec();
-        let body = std::str::from_utf8(&body).unwrap();
+        Ok(())
+    }
 
-        let ip_data: IpApiMessage = serde_json::from_str(body).unwrap();
-
-        if ip_data.message.is_some() {
-            return match ip_data.message.unwrap().as_str() {
+    fn check_error_message(message: Option<String>) -> Result<(), IpApiError> {
+        if let Some(message) = message {
+            return match message.as_str() {
                 "invalid query" => Err(IpApiError::InvalidQuery),
                 "private range" => Err(IpApiError::PrivateRange),
                 "reserved range" => Err(IpApiError::ReservedRange),
@@ -310,9 +331,77 @@ impl IpApiConfig {
             };
         }
 
-        let ip_data: IpData = serde_json::from_str(body).unwrap();
+        Ok(())
+    }
+
+    async fn parse_response_body(response: &mut Response<Body>) -> String {
+        let body = response.body_mut().data().await;
+        let body = body.unwrap().unwrap().to_vec();
+        let body = std::str::from_utf8(&body).unwrap();
+
+        body.to_string()
+    }
+
+    /// Making a request to [ip-api.com API](https://ip-api.com/docs/api:json)
+    ///
+    /// `target` can be "ip"/"domain"/"empty string (if you want to request your ip)"
+    #[tokio::main]
+    pub async fn make_request(self, target: &str) -> Result<IpData, IpApiError> {
+        let uri = Self::build_uri(
+            "json",
+            Some(target),
+            self.numeric_field,
+            self.language,
+        );
+
+        let client = Client::new();
+        let response = &mut client.get(uri.parse().unwrap()).await.unwrap();
+
+        Self::check_response(response)?;
+
+        let body = Self::parse_response_body(response).await;
+        let ip_data: IpApiMessage = serde_json::from_str(body.as_str()).unwrap();
+
+        Self::check_error_message(ip_data.message)?;
+
+        let ip_data: IpData = serde_json::from_str(body.as_str()).unwrap();
 
         Ok(ip_data)
+    }
+
+    /// Making a batch request to [ip-api.com API](https://ip-api.com/docs/api:batch)
+    ///
+    /// `target` can be "IPv4"/"IPv6"
+    #[tokio::main]
+    pub async fn make_batch_request(self, targets: Vec<&str>) -> Result<Vec<IpData>, IpApiError> {
+        let uri = Self::build_uri(
+            "batch",
+            None,
+            self.numeric_field,
+            self.language,
+        );
+
+        let request = Request::builder()
+            .method(Method::POST)
+            .uri(uri)
+            .header("content-type", "application/json")
+            .body(Body::from(json!(targets).to_string())).unwrap();
+
+        let client = Client::new();
+        let response = &mut client.request(request).await.unwrap();
+
+        Self::check_response(response)?;
+
+        let body = Self::parse_response_body(response).await;
+        let ip_batch_data: Vec<IpApiMessage> = serde_json::from_str(body.as_str()).unwrap();
+
+        for ip_data in ip_batch_data {
+            Self::check_error_message(ip_data.message)?;
+        }
+
+        let ip_batch_data: Vec<IpData> = serde_json::from_str(body.as_str()).unwrap();
+
+        Ok(ip_batch_data)
     }
 
     /// Include [`continent`](struct.IpData.html#structfield.continent) in request
