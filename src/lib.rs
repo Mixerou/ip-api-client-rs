@@ -12,20 +12,27 @@
 //! // `generate_minimum_config` (that includes only important fields)
 //! // `generate_maximum_config` (that includes all fields)
 //! let ip_data: IpData = Client::generate_empty_config()
-//!     // or `exclude_country` if this field is already included in the generated config
+//!     // or `exclude_country` if this field is already included
+//!     // in the generated config
 //!     .include_country()
-//!     // or `exclude_currency` if this field is already included in the generated config
+//!     // or `exclude_currency` if this field is already included in
+//!     // the generated config
 //!     .include_currency()
 //!     // available languages: de/en (default)/es/fr/ja/pt-Br/ru/zh-CN
 //!     .set_language(IpApiLanguage::De)
-//!     // `make_request` takes "ip"/"domain"/"empty string (if you want to request your ip)"
+//!     // `make_request` takes
+//!     // "ip"/"domain"/"empty string (if you want to request your ip)"
 //!     .make_request("1.1.1.1").unwrap();
 //!
-//! println!("{}'s national currency is {}", ip_data.country.unwrap(), ip_data.currency.unwrap());
+//! println!(
+//!     "{}'s national currency is {}",
+//!     ip_data.country.unwrap(),
+//!     ip_data.currency.unwrap(),
+//! );
 //!
 //! // If you want to request more than one ip, you can use `make_batch_request`
 //! let ip_batch_data: Vec<IpData> = Client::generate_empty_config()
-//! .include_isp()
+//!     .include_isp()
 //! // `make_batch_request` takes "IPv4"/"IPv6"
 //! .make_batch_request(vec!["1.1.1.1", "8.8.8.8"]).unwrap();
 //!
