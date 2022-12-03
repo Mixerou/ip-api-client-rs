@@ -414,10 +414,7 @@ impl IpApiConfig {
     /// Include [`continent`](struct.IpData.html#structfield.continent) in request
     pub fn include_continent(mut self) -> Self {
         if !self.is_continent_included {
-            if !self.is_continent_included {
-                self.is_continent_included = true;
-                self.numeric_field += 0;
-            }
+            self.is_continent_included = true;
             self.numeric_field += 1048576;
         }
 
