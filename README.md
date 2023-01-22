@@ -2,7 +2,7 @@
 
 The client (based on [ip-api.com](https://ip-api.com/) api) allows you to get information about the IP address
 
-# Usage
+## Usage
 
 Add to project
 
@@ -48,14 +48,14 @@ fn main() {
 }
 ```
 
-# Peculiarities
+## Peculiarities
 
 - We use `as_field` instead of `as`
   (As stated in the [ip-api.com API documentation](https://ip-api.com/docs/api:json#as))
   since it is a [strict keyword](https://doc.rust-lang.org/reference/keywords.html#strict-keywords) in rust,
   such as `pub`, `impl` or `struct`.
 
-# Development Progress
+## Development Progress
 
 - [x] Request IP address information with a configuration structure that allows you to customize the requested fields in the request to save traffic.
 - [x] Get information about Ip in different languages
@@ -64,6 +64,6 @@ fn main() {
 - [ ] Ability to cache all responses with automatic removal of old ip-data when the maximum cache size is reached.
 
 
-# License
+## License
 
 This library (ip-api-client) is available under the MIT license. See the LICENSE file for more info.
