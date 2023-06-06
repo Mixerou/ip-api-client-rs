@@ -8,7 +8,7 @@ Add to project
 
 ```toml
 [dependencies]
-ip-api-client = "0.4.1"
+ip-api-client = "0.4.2"
 ```
 
 Write some Rust

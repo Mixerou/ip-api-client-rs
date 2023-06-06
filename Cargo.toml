@@ -1,6 +1,6 @@
 [package]
 name = "ip-api-client"
-version = "0.4.1" # don't forget edit version in README.md
+version = "0.4.2" # don't forget edit version in README.md
 authors = ["Ivan <contact@mixero.dev>"]
 edition = "2021"
 description = "The client (based on ip-api.com api) allows you to get information about the IP address"
