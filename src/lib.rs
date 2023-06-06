@@ -334,7 +334,7 @@ impl IpApiConfig {
                 "invalid query" => Err(IpApiError::InvalidQuery),
                 "private range" => Err(IpApiError::PrivateRange),
                 "reserved range" => Err(IpApiError::ReservedRange),
-                message => Err(IpApiError::UnexpectedError(Some(message.to_string()))),
+                message => Err(IpApiError::UnexpectedError(Some(message.into()))),
             };
         }
 
@@ -346,7 +346,7 @@ impl IpApiConfig {
         let body = body.unwrap().unwrap().to_vec();
         let body = std::str::from_utf8(&body).unwrap();
 
-        body.to_string()
+        body.into()
     }
 
     /// Making a request to [ip-api.com API](https://ip-api.com/docs/api:json)
