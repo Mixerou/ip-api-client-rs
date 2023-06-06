@@ -63,7 +63,6 @@ fn main() {
 - [ ] Block all requests until the end of the limit if the last request was rate-limited.
 - [ ] Ability to cache all responses with automatic removal of old ip-data when the maximum cache size is reached.
 
-
 ## License
 
 This library (ip-api-client) is available under the MIT license. See the LICENSE file for more info.
