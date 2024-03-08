@@ -310,20 +310,21 @@ impl IpApiConfig {
         fields: u32,
         language: IpApiLanguage,
     ) -> String {
-        format!("http://ip-api.com/{}/{}?fields={}{}",
-                resource,
-                target.unwrap_or(""),
-                fields,
-                match language {
-                    IpApiLanguage::De => "&lang=de",
-                    IpApiLanguage::Es => "&lang=es",
-                    IpApiLanguage::Fr => "&lang=fr",
-                    IpApiLanguage::Ja => "&lang=ja",
-                    IpApiLanguage::PtBr => "&lang=pt-BR",
-                    IpApiLanguage::Ru => "&lang=ru",
-                    IpApiLanguage::ZhCn => "&lang=zh-CN",
-                    _ => "",
-                }
+        format!(
+            "http://ip-api.com/{}/{}?fields={}{}",
+            resource,
+            target.unwrap_or(""),
+            fields,
+            match language {
+                IpApiLanguage::De => "&lang=de",
+                IpApiLanguage::Es => "&lang=es",
+                IpApiLanguage::Fr => "&lang=fr",
+                IpApiLanguage::Ja => "&lang=ja",
+                IpApiLanguage::PtBr => "&lang=pt-BR",
+                IpApiLanguage::Ru => "&lang=ru",
+                IpApiLanguage::ZhCn => "&lang=zh-CN",
+                _ => "",
+            }
         )
     }
 
@@ -331,9 +332,13 @@ impl IpApiConfig {
         if response.status() == 429 {
             return Err(IpApiError::RateLimit(
                 response
-                    .headers().get("X-Ttl").unwrap()
-                    .to_str().unwrap()
-                    .parse().unwrap()
+                    .headers()
+                    .get("X-Ttl")
+                    .unwrap()
+                    .to_str()
+                    .unwrap()
+                    .parse()
+                    .unwrap(),
             ));
         }
 
@@ -365,12 +370,7 @@ impl IpApiConfig {
     ///
     /// `target` can be "ip"/"domain"/"empty string (if you want to request your ip)"
     pub async fn make_request(self, target: &str) -> Result<IpData, IpApiError> {
-        let uri = Self::build_uri(
-            "json",
-            Some(target),
-            self.numeric_field,
-            self.language,
-        );
+        let uri = Self::build_uri("json", Some(target), self.numeric_field, self.language);
 
         let client = Client::new();
         let response = &mut client.get(uri.parse().unwrap()).await.unwrap();
@@ -391,18 +391,14 @@ impl IpApiConfig {
     ///
     /// `target` can be "IPv4"/"IPv6"
     pub async fn make_batch_request(self, targets: Vec<&str>) -> Result<Vec<IpData>, IpApiError> {
-        let uri = Self::build_uri(
-            "batch",
-            None,
-            self.numeric_field,
-            self.language,
-        );
+        let uri = Self::build_uri("batch", None, self.numeric_field, self.language);
 
         let request = Request::builder()
             .method(Method::POST)
             .uri(uri)
             .header("content-type", "application/json")
-            .body(Body::from(json!(targets).to_string())).unwrap();
+            .body(Body::from(json!(targets).to_string()))
+            .unwrap();
 
         let client = Client::new();
         let response = &mut client.request(request).await.unwrap();
