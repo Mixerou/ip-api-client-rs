@@ -9,6 +9,7 @@ Add to project
 ```toml
 [dependencies]
 ip-api-client = "0.4.2"
+tokio = "1.28.2"
 ```
 
 Write some Rust
@@ -17,7 +18,8 @@ Write some Rust
 use ip_api_client as Client;
 use ip_api_client::{IpApiLanguage, IpData};
 
-fn main() {
+#[tokio::main]
+async fn main() {
   // You can
   // `generate_empty_config` (to create your own config from scratch)
   // `generate_minimum_config` (that includes only important fields)
@@ -33,7 +35,9 @@ fn main() {
           .set_language(IpApiLanguage::De)
           // `make_request` takes
           // "ip"/"domain"/"empty string (if you want to request your ip)"
-          .make_request("1.1.1.1").unwrap();
+          .make_request("1.1.1.1")
+          .await
+          .unwrap();
 
   println!(
     "{}'s national currency is {}",
@@ -45,7 +49,9 @@ fn main() {
   let ip_batch_data: Vec<IpData> = Client::generate_empty_config()
           .include_isp()
           // `make_batch_request` takes "IPv4"/"IPv6"
-          .make_batch_request(vec!["1.1.1.1", "8.8.8.8"]).unwrap();
+          .make_batch_request(vec!["1.1.1.1", "8.8.8.8"])
+          .await
+          .unwrap();
 
   println!(
     "1.1.1.1 belongs to `{}` and 8.8.8.8 belongs to `{}`",

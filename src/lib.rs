@@ -4,6 +4,8 @@
 //! # Example
 //!
 //! ```rust
+//! # #[tokio::main]
+//! # async fn main() {
 //! use ip_api_client as Client;
 //! use ip_api_client::{IpApiLanguage, IpData};
 //!
@@ -22,7 +24,9 @@
 //!     .set_language(IpApiLanguage::De)
 //!     // `make_request` takes
 //!     // "ip"/"domain"/"empty string (if you want to request your ip)"
-//!     .make_request("1.1.1.1").unwrap();
+//!     .make_request("1.1.1.1")
+//!     .await
+//!     .unwrap();
 //!
 //! println!(
 //!     "{}'s national currency is {}",
@@ -33,14 +37,17 @@
 //! // If you want to request more than one ip, you can use `make_batch_request`
 //! let ip_batch_data: Vec<IpData> = Client::generate_empty_config()
 //!     .include_isp()
-//! // `make_batch_request` takes "IPv4"/"IPv6"
-//! .make_batch_request(vec!["1.1.1.1", "8.8.8.8"]).unwrap();
+//!     // `make_batch_request` takes "IPv4"/"IPv6"
+//!     .make_batch_request(vec!["1.1.1.1", "8.8.8.8"])
+//!     .await
+//!     .unwrap();
 //!
 //! println!(
 //!     "1.1.1.1 belongs to `{}` and 8.8.8.8 belongs to `{}`",
 //!     ip_batch_data.get(0).unwrap().isp.as_ref().unwrap(),
 //!     ip_batch_data.get(1).unwrap().isp.as_ref().unwrap(),
 //! );
+//! # }
 //! ```
 
 #![deny(missing_docs)]
@@ -54,22 +61,27 @@ use serde_json::json;
 mod tests {
     use crate::{generate_empty_config, IpData};
 
-    #[test]
-    fn make_request() {
+    #[tokio::test]
+    async fn make_request() {
         assert_eq!(
             generate_empty_config()
                 .include_query()
-                .make_request("1.1.1.1").unwrap()
-                .query.unwrap(),
+                .make_request("1.1.1.1")
+                .await
+                .unwrap()
+                .query
+                .unwrap(),
             String::from("1.1.1.1")
         );
     }
 
-    #[test]
-    fn make_batch_request() {
+    #[tokio::test]
+    async fn make_batch_request() {
         let ips: Vec<IpData> = generate_empty_config()
             .include_query()
-            .make_batch_request(vec!["1.1.1.1", "8.8.8.8"]).unwrap();
+            .make_batch_request(vec!["1.1.1.1", "8.8.8.8"])
+            .await
+            .unwrap();
 
         assert_eq!(ips.get(0).unwrap().query, Some(String::from("1.1.1.1")));
         assert_eq!(ips.get(1).unwrap().query, Some(String::from("8.8.8.8")))
@@ -352,7 +364,6 @@ impl IpApiConfig {
     /// Making a request to [ip-api.com API](https://ip-api.com/docs/api:json)
     ///
     /// `target` can be "ip"/"domain"/"empty string (if you want to request your ip)"
-    #[tokio::main]
     pub async fn make_request(self, target: &str) -> Result<IpData, IpApiError> {
         let uri = Self::build_uri(
             "json",
@@ -379,7 +390,6 @@ impl IpApiConfig {
     /// Making a batch request to [ip-api.com API](https://ip-api.com/docs/api:batch)
     ///
     /// `target` can be "IPv4"/"IPv6"
-    #[tokio::main]
     pub async fn make_batch_request(self, targets: Vec<&str>) -> Result<Vec<IpData>, IpApiError> {
         let uri = Self::build_uri(
             "batch",

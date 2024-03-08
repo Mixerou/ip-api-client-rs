@@ -16,4 +16,6 @@ categories = ["api-bindings"]
 hyper = { version = "0.14.26", features = ["client", "http1", "runtime"], default-features = false }
 serde = { version = "1.0.163", features = ["derive"] }
 serde_json = "1.0.96"
+
+[dev-dependencies]
 tokio = { version = "1.28.2", features = ["macros", "rt-multi-thread"], default-features = false }
