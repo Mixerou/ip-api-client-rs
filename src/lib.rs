@@ -317,13 +317,13 @@ impl IpApiConfig {
             fields,
             match language {
                 IpApiLanguage::De => "&lang=de",
+                IpApiLanguage::En => "",
                 IpApiLanguage::Es => "&lang=es",
                 IpApiLanguage::Fr => "&lang=fr",
                 IpApiLanguage::Ja => "&lang=ja",
                 IpApiLanguage::PtBr => "&lang=pt-BR",
                 IpApiLanguage::Ru => "&lang=ru",
                 IpApiLanguage::ZhCn => "&lang=zh-CN",
-                _ => "",
             }
         )
     }
