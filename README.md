@@ -8,7 +8,7 @@ Add to project
 
 ```toml
 [dependencies]
-ip-api-client = "0.5.0"
+ip-api-client = "0.5.1"
 tokio = { version = "1.36.0", features = ["macros", "rt-multi-thread"], default-features = false }
 ```
 
