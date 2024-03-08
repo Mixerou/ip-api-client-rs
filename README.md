@@ -9,7 +9,7 @@ Add to project
 ```toml
 [dependencies]
 ip-api-client = "0.4.2"
-tokio = "1.28.2"
+tokio = "1.36.0"
 ```
 
 Write some Rust
