@@ -89,7 +89,7 @@ mod tests {
 }
 
 /// Represents all the ways that a request can fail
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub enum IpApiError {
     /// Incorrect IP address or non-existent domain
     ///
@@ -125,6 +125,7 @@ pub enum IpApiError {
 }
 
 /// Represents all available languages for [`IpData`]
+#[derive(Clone, Debug)]
 pub enum IpApiLanguage {
     /// Deutsch (German)
     De,
@@ -189,7 +190,7 @@ struct IpApiMessage {
 ///     query: Some("1.1.1.1".to_string()),
 /// };
 /// ```
-#[derive(Deserialize)]
+#[derive(Clone, Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct IpData {
     /// Continent name
@@ -275,6 +276,7 @@ pub struct IpData {
 
 /// Configuration structure allows you to customize the requested fields in the request
 /// to save traffic
+#[derive(Clone, Debug)]
 pub struct IpApiConfig {
     numeric_field: u32,
     is_continent_included: bool,
