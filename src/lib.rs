@@ -330,16 +330,23 @@ impl IpApiConfig {
 
     fn check_response(response: &Response<Body>) -> Result<(), IpApiError> {
         if response.status() == 429 {
-            return Err(IpApiError::RateLimit(
-                response
-                    .headers()
-                    .get("X-Ttl")
-                    .unwrap()
-                    .to_str()
-                    .unwrap()
-                    .parse()
-                    .unwrap(),
-            ));
+            let Some(header) = response.headers().get("X-Ttl") else {
+                return Err(IpApiError::UnexpectedError(Some(
+                    "Failed to get `X-Ttl` header from the response".into(),
+                )));
+            };
+            let Ok(header) = header.to_str() else {
+                return Err(IpApiError::UnexpectedError(Some(
+                    "Failed to convert `X-Ttl` header from the response to &str".into(),
+                )));
+            };
+            let Ok(header) = header.parse() else {
+                return Err(IpApiError::UnexpectedError(Some(
+                    "Failed to parse `X-Ttl` header from the response".into(),
+                )));
+            };
+
+            return Err(IpApiError::RateLimit(header));
         }
 
         Ok(())
@@ -358,12 +365,24 @@ impl IpApiConfig {
         Ok(())
     }
 
-    async fn parse_response_body(response: &mut Response<Body>) -> String {
-        let body = response.body_mut().data().await;
-        let body = body.unwrap().unwrap().to_vec();
-        let body = std::str::from_utf8(&body).unwrap();
+    async fn parse_response_body(response: &mut Response<Body>) -> Result<String, IpApiError> {
+        let Some(body) = response.body_mut().data().await else {
+            return Err(IpApiError::UnexpectedError(Some(
+                "Response is empty".into(),
+            )));
+        };
+        let Ok(body) = body else {
+            return Err(IpApiError::UnexpectedError(Some(
+                "Failed to retrieve body from the response".into(),
+            )));
+        };
+        let Ok(body) = String::from_utf8(body.to_vec()) else {
+            return Err(IpApiError::UnexpectedError(Some(
+                "Failed to convert body from the response to String".into(),
+            )));
+        };
 
-        body.into()
+        Ok(body)
     }
 
     /// Making a request to [ip-api.com API](https://ip-api.com/docs/api:json)
@@ -373,16 +392,33 @@ impl IpApiConfig {
         let uri = Self::build_uri("json", Some(target), self.numeric_field, self.language);
 
         let client = Client::new();
-        let response = &mut client.get(uri.parse().unwrap()).await.unwrap();
+        let Ok(uri) = uri.parse() else {
+            return Err(IpApiError::UnexpectedError(Some(
+                "Failed to parse request URI".into(),
+            )));
+        };
+        let Ok(response) = &mut client.get(uri).await else {
+            return Err(IpApiError::UnexpectedError(Some(
+                "Failed to make a request".into(),
+            )));
+        };
 
         Self::check_response(response)?;
 
-        let body = Self::parse_response_body(response).await;
-        let ip_data: IpApiMessage = serde_json::from_str(body.as_str()).unwrap();
+        let body = Self::parse_response_body(response).await?;
+        let Ok(ip_data): Result<IpApiMessage, _> = serde_json::from_str(body.as_str()) else {
+            return Err(IpApiError::UnexpectedError(Some(
+                "Failed to parse body from the response".into(),
+            )));
+        };
 
         Self::check_error_message(ip_data.message)?;
 
-        let ip_data: IpData = serde_json::from_str(body.as_str()).unwrap();
+        let Ok(ip_data): Result<IpData, _> = serde_json::from_str(body.as_str()) else {
+            return Err(IpApiError::UnexpectedError(Some(
+                "Failed to parse body from the response".into(),
+            )));
+        };
 
         Ok(ip_data)
     }
@@ -393,26 +429,43 @@ impl IpApiConfig {
     pub async fn make_batch_request(self, targets: Vec<&str>) -> Result<Vec<IpData>, IpApiError> {
         let uri = Self::build_uri("batch", None, self.numeric_field, self.language);
 
-        let request = Request::builder()
+        let Ok(request) = Request::builder()
             .method(Method::POST)
             .uri(uri)
             .header("content-type", "application/json")
             .body(Body::from(json!(targets).to_string()))
-            .unwrap();
+        else {
+            return Err(IpApiError::UnexpectedError(Some(
+                "Failed to build a request".into(),
+            )));
+        };
 
         let client = Client::new();
-        let response = &mut client.request(request).await.unwrap();
+        let Ok(response) = &mut client.request(request).await else {
+            return Err(IpApiError::UnexpectedError(Some(
+                "Failed to make a request".into(),
+            )));
+        };
 
         Self::check_response(response)?;
 
-        let body = Self::parse_response_body(response).await;
-        let ip_batch_data: Vec<IpApiMessage> = serde_json::from_str(body.as_str()).unwrap();
+        let body = Self::parse_response_body(response).await?;
+        let Ok(ip_batch_data): Result<Vec<IpApiMessage>, _> = serde_json::from_str(body.as_str())
+        else {
+            return Err(IpApiError::UnexpectedError(Some(
+                "Failed to parse body from the response".into(),
+            )));
+        };
 
         for ip_data in ip_batch_data {
             Self::check_error_message(ip_data.message)?;
         }
 
-        let ip_batch_data: Vec<IpData> = serde_json::from_str(body.as_str()).unwrap();
+        let Ok(ip_batch_data): Result<Vec<IpData>, _> = serde_json::from_str(body.as_str()) else {
+            return Err(IpApiError::UnexpectedError(Some(
+                "Failed to parse body from the response".into(),
+            )));
+        };
 
         Ok(ip_batch_data)
     }
