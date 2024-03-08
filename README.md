@@ -8,7 +8,7 @@ Add to project
 
 ```toml
 [dependencies]
-ip-api-client = "0.4.2"
+ip-api-client = "0.5.0"
 tokio = "1.36.0"
 ```
 
