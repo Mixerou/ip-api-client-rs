@@ -44,8 +44,8 @@
 //!
 //! println!(
 //!     "1.1.1.1 belongs to `{}` and 8.8.8.8 belongs to `{}`",
-//!     ip_batch_data.get(0).unwrap().isp.as_ref().unwrap(),
-//!     ip_batch_data.get(1).unwrap().isp.as_ref().unwrap(),
+//!     ip_batch_data.first().unwrap().isp.as_ref().unwrap(),
+//!     ip_batch_data.last().unwrap().isp.as_ref().unwrap(),
 //! );
 //! # }
 //! ```
@@ -83,8 +83,8 @@ mod tests {
             .await
             .unwrap();
 
-        assert_eq!(ips.get(0).unwrap().query, Some(String::from("1.1.1.1")));
-        assert_eq!(ips.get(1).unwrap().query, Some(String::from("8.8.8.8")))
+        assert_eq!(ips.first().unwrap().query, Some(String::from("1.1.1.1")));
+        assert_eq!(ips.last().unwrap().query, Some(String::from("8.8.8.8")))
     }
 }
 
