@@ -763,7 +763,7 @@ impl IpApiConfig {
 }
 
 /// Create an empty config to create your own from scratch
-pub fn generate_empty_config() -> IpApiConfig {
+pub const fn generate_empty_config() -> IpApiConfig {
     IpApiConfig {
         numeric_field: IpDataField::Message as u32,
         language: IpApiLanguage::En,
@@ -771,7 +771,7 @@ pub fn generate_empty_config() -> IpApiConfig {
 }
 
 /// Generate minimum config that includes only important fields
-pub fn generate_minimum_config() -> IpApiConfig {
+pub const fn generate_minimum_config() -> IpApiConfig {
     IpApiConfig {
         numeric_field: IpDataField::Message as u32
             | IpDataField::CountryCode as u32
@@ -785,7 +785,7 @@ pub fn generate_minimum_config() -> IpApiConfig {
 }
 
 /// Generate maximum config that includes all fields
-pub fn generate_maximum_config() -> IpApiConfig {
+pub const fn generate_maximum_config() -> IpApiConfig {
     IpApiConfig {
         numeric_field: IpDataField::Message as u32
             | IpDataField::Continent as u32
