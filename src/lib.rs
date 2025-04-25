@@ -274,34 +274,41 @@ pub struct IpData {
     pub query: Option<String>,
 }
 
+#[repr(u32)]
+enum IpDataField {
+    // Status = 1 << 14, // Never used
+    Message = 1 << 15,
+
+    Continent = 1 << 20,
+    ContinentCode = 1 << 21,
+    Country = 1 << 0,
+    CountryCode = 1 << 1,
+    Region = 1 << 2,
+    RegionName = 1 << 3,
+    City = 1 << 4,
+    District = 1 << 19,
+    Zip = 1 << 5,
+    Lat = 1 << 6,
+    Lon = 1 << 7,
+    Timezone = 1 << 8,
+    Offset = 1 << 25,
+    Currency = 1 << 23,
+    Isp = 1 << 9,
+    Org = 1 << 10,
+    AsField = 1 << 11,
+    Asname = 1 << 22,
+    Reverse = 1 << 12,
+    Mobile = 1 << 16,
+    Proxy = 1 << 17,
+    Hosting = 1 << 24,
+    Query = 1 << 13,
+}
+
 /// Configuration structure allows you to customize the requested fields in the request
 /// to save traffic
 #[derive(Clone, Debug)]
 pub struct IpApiConfig {
     numeric_field: u32,
-    is_continent_included: bool,
-    is_continent_code_included: bool,
-    is_country_included: bool,
-    is_country_code_included: bool,
-    is_region_included: bool,
-    is_region_name_included: bool,
-    is_city_included: bool,
-    is_district_included: bool,
-    is_zip_included: bool,
-    is_lat_included: bool,
-    is_lon_included: bool,
-    is_timezone_included: bool,
-    is_offset_included: bool,
-    is_currency_included: bool,
-    is_isp_included: bool,
-    is_org_included: bool,
-    is_as_field_included: bool,
-    is_asname_included: bool,
-    is_reverse_included: bool,
-    is_mobile_included: bool,
-    is_proxy_included: bool,
-    is_hosting_included: bool,
-    is_query_included: bool,
     language: IpApiLanguage,
 }
 
@@ -474,468 +481,283 @@ impl IpApiConfig {
 
     /// Include [`continent`](struct.IpData.html#structfield.continent) in request
     pub fn include_continent(mut self) -> Self {
-        if !self.is_continent_included {
-            self.is_continent_included = true;
-            self.numeric_field += 1048576;
-        }
-
+        self.numeric_field |= IpDataField::Continent as u32;
         self
     }
 
     /// Include [`continent_code`](struct.IpData.html#structfield.continent_code) in request
     pub fn include_continent_code(mut self) -> Self {
-        if !self.is_continent_code_included {
-            self.is_continent_code_included = true;
-            self.numeric_field += 2097152;
-        }
-
+        self.numeric_field |= IpDataField::ContinentCode as u32;
         self
     }
 
     /// Include [`country`](struct.IpData.html#structfield.country) in request
     pub fn include_country(mut self) -> Self {
-        if !self.is_country_included {
-            self.is_country_included = true;
-            self.numeric_field += 1;
-        }
-
+        self.numeric_field |= IpDataField::Country as u32;
         self
     }
 
     /// Include [`country_code`](struct.IpData.html#structfield.country_code) in request
     pub fn include_country_code(mut self) -> Self {
-        if !self.is_country_code_included {
-            self.is_country_code_included = true;
-            self.numeric_field += 2;
-        }
-
+        self.numeric_field |= IpDataField::CountryCode as u32;
         self
     }
 
     /// Include [`region`](struct.IpData.html#structfield.region) in request
     pub fn include_region(mut self) -> Self {
-        if !self.is_region_included {
-            self.is_region_included = true;
-            self.numeric_field += 4;
-        }
-
+        self.numeric_field |= IpDataField::Region as u32;
         self
     }
 
     /// Include [`region_name`](struct.IpData.html#structfield.region_name) in request
     pub fn include_region_name(mut self) -> Self {
-        if !self.is_region_name_included {
-            self.is_region_name_included = true;
-            self.numeric_field += 8;
-        }
-
+        self.numeric_field |= IpDataField::RegionName as u32;
         self
     }
 
     /// Include [`city`](struct.IpData.html#structfield.city) in request
     pub fn include_city(mut self) -> Self {
-        if !self.is_city_included {
-            self.is_city_included = true;
-            self.numeric_field += 16;
-        }
-
+        self.numeric_field |= IpDataField::City as u32;
         self
     }
 
     /// Include [`district`](struct.IpData.html#structfield.district) in request
     pub fn include_district(mut self) -> Self {
-        if !self.is_district_included {
-            self.is_district_included = true;
-            self.numeric_field += 524288;
-        }
-
+        self.numeric_field |= IpDataField::District as u32;
         self
     }
 
     /// Include [`zip`](struct.IpData.html#structfield.zip) in request
     pub fn include_zip(mut self) -> Self {
-        if !self.is_zip_included {
-            self.is_zip_included = true;
-            self.numeric_field += 32;
-        }
-
+        self.numeric_field |= IpDataField::Zip as u32;
         self
     }
 
     /// Include [`lat`](struct.IpData.html#structfield.lat) in request
     pub fn include_lat(mut self) -> Self {
-        if !self.is_lat_included {
-            self.is_lat_included = true;
-            self.numeric_field += 64;
-        }
-
+        self.numeric_field |= IpDataField::Lat as u32;
         self
     }
 
     /// Include [`lon`](struct.IpData.html#structfield.lon) in request
     pub fn include_lon(mut self) -> Self {
-        if !self.is_lon_included {
-            self.is_lon_included = true;
-            self.numeric_field += 128;
-        }
-
+        self.numeric_field |= IpDataField::Lon as u32;
         self
     }
 
     /// Include [`timezone`](struct.IpData.html#structfield.timezone) in request
     pub fn include_timezone(mut self) -> Self {
-        if !self.is_timezone_included {
-            self.is_timezone_included = true;
-            self.numeric_field += 256;
-        }
-
+        self.numeric_field |= IpDataField::Timezone as u32;
         self
     }
 
     /// Include [`offset`](struct.IpData.html#structfield.offset) in request
     pub fn include_offset(mut self) -> Self {
-        if !self.is_offset_included {
-            self.is_offset_included = true;
-            self.numeric_field += 33554432;
-        }
-
+        self.numeric_field |= IpDataField::Offset as u32;
         self
     }
 
     /// Include [`currency`](struct.IpData.html#structfield.currency) in request
     pub fn include_currency(mut self) -> Self {
-        if !self.is_currency_included {
-            self.is_currency_included = true;
-            self.numeric_field += 8388608;
-        }
-
+        self.numeric_field |= IpDataField::Currency as u32;
         self
     }
 
     /// Include [`isp`](struct.IpData.html#structfield.isp) in request
     pub fn include_isp(mut self) -> Self {
-        if !self.is_isp_included {
-            self.is_isp_included = true;
-            self.numeric_field += 512;
-        }
-
+        self.numeric_field |= IpDataField::Isp as u32;
         self
     }
 
     /// Include [`org`](struct.IpData.html#structfield.org) in request
     pub fn include_org(mut self) -> Self {
-        if !self.is_org_included {
-            self.is_org_included = true;
-            self.numeric_field += 1024;
-        }
-
+        self.numeric_field |= IpDataField::Org as u32;
         self
     }
 
     /// Include [`as_field`](struct.IpData.html#structfield.as_field) in request
     pub fn include_as_field(mut self) -> Self {
-        if !self.is_as_field_included {
-            self.is_as_field_included = true;
-            self.numeric_field += 2048;
-        }
-
+        self.numeric_field |= IpDataField::AsField as u32;
         self
     }
 
     /// Include [`asname`](struct.IpData.html#structfield.asname) in request
     pub fn include_asname(mut self) -> Self {
-        if !self.is_asname_included {
-            self.is_asname_included = true;
-            self.numeric_field += 4194304;
-        }
-
+        self.numeric_field |= IpDataField::Asname as u32;
         self
     }
 
     /// Include [`reverse`](struct.IpData.html#structfield.reverse) in request
     pub fn include_reverse(mut self) -> Self {
-        if !self.is_reverse_included {
-            self.is_reverse_included = true;
-            self.numeric_field += 4096;
-        }
-
+        self.numeric_field |= IpDataField::Reverse as u32;
         self
     }
 
     /// Include [`mobile`](struct.IpData.html#structfield.mobile) in request
     pub fn include_mobile(mut self) -> Self {
-        if !self.is_mobile_included {
-            self.is_mobile_included = true;
-            self.numeric_field += 65536;
-        }
-
+        self.numeric_field |= IpDataField::Mobile as u32;
         self
     }
 
     /// Include [`proxy`](struct.IpData.html#structfield.proxy) in request
     pub fn include_proxy(mut self) -> Self {
-        if !self.is_proxy_included {
-            self.is_proxy_included = true;
-            self.numeric_field += 131072;
-        }
-
+        self.numeric_field |= IpDataField::Proxy as u32;
         self
     }
 
     /// Include [`hosting`](struct.IpData.html#structfield.hosting) in request
     pub fn include_hosting(mut self) -> Self {
-        if !self.is_hosting_included {
-            self.is_hosting_included = true;
-            self.numeric_field += 16777216;
-        }
-
+        self.numeric_field |= IpDataField::Hosting as u32;
         self
     }
 
     /// Include [`query`](struct.IpData.html#structfield.query) in request
     pub fn include_query(mut self) -> Self {
-        if !self.is_query_included {
-            self.is_query_included = true;
-            self.numeric_field += 8192;
-        }
-
+        self.numeric_field |= IpDataField::Query as u32;
         self
     }
 
     /// Exclude [`continent`](struct.IpData.html#structfield.continent) from request
     pub fn exclude_continent(mut self) -> Self {
-        if self.is_continent_included {
-            self.is_continent_included = false;
-            self.numeric_field -= 1048576;
-        }
-
+        self.numeric_field &= !(IpDataField::Continent as u32);
         self
     }
 
     /// Exclude [`continent_code`](struct.IpData.html#structfield.continent_code) from request
     pub fn exclude_continent_code(mut self) -> Self {
-        if self.is_continent_code_included {
-            self.is_continent_code_included = false;
-            self.numeric_field -= 2097152;
-        }
-
+        self.numeric_field &= !(IpDataField::ContinentCode as u32);
         self
     }
 
     /// Exclude [`country`](struct.IpData.html#structfield.country) from request
     pub fn exclude_country(mut self) -> Self {
-        if self.is_country_included {
-            self.is_country_included = false;
-            self.numeric_field -= 1;
-        }
-
+        self.numeric_field &= !(IpDataField::Country as u32);
         self
     }
 
     /// Exclude [`country_code`](struct.IpData.html#structfield.country_code) from request
     pub fn exclude_country_code(mut self) -> Self {
-        if self.is_country_code_included {
-            self.is_country_code_included = false;
-            self.numeric_field -= 2;
-        }
-
+        self.numeric_field &= !(IpDataField::CountryCode as u32);
         self
     }
 
     /// Exclude [`region`](struct.IpData.html#structfield.region) from request
     pub fn exclude_region(mut self) -> Self {
-        if self.is_region_included {
-            self.is_region_included = false;
-            self.numeric_field -= 4;
-        }
-
+        self.numeric_field &= !(IpDataField::Region as u32);
         self
     }
 
     /// Exclude [`region_name`](struct.IpData.html#structfield.region_name) from request
     pub fn exclude_region_name(mut self) -> Self {
-        if self.is_region_name_included {
-            self.is_region_name_included = false;
-            self.numeric_field -= 8;
-        }
-
+        self.numeric_field &= !(IpDataField::RegionName as u32);
         self
     }
 
     /// Exclude [`city`](struct.IpData.html#structfield.city) from request
     pub fn exclude_city(mut self) -> Self {
-        if self.is_city_included {
-            self.is_city_included = false;
-            self.numeric_field -= 16;
-        }
-
+        self.numeric_field &= !(IpDataField::City as u32);
         self
     }
 
     /// Exclude [`district`](struct.IpData.html#structfield.district) from request
     pub fn exclude_district(mut self) -> Self {
-        if self.is_district_included {
-            self.is_district_included = false;
-            self.numeric_field -= 524288;
-        }
-
+        self.numeric_field &= !(IpDataField::District as u32);
         self
     }
 
     /// Exclude [`zip`](struct.IpData.html#structfield.zip) from request
     pub fn exclude_zip(mut self) -> Self {
-        if self.is_zip_included {
-            self.is_zip_included = false;
-            self.numeric_field -= 32;
-        }
-
+        self.numeric_field &= !(IpDataField::Zip as u32);
         self
     }
 
     /// Exclude [`lat`](struct.IpData.html#structfield.lat) from request
     pub fn exclude_lat(mut self) -> Self {
-        if self.is_lat_included {
-            self.is_lat_included = false;
-            self.numeric_field -= 64;
-        }
-
+        self.numeric_field &= !(IpDataField::Lat as u32);
         self
     }
 
     /// Exclude [`lon`](struct.IpData.html#structfield.lon) from request
     pub fn exclude_lon(mut self) -> Self {
-        if self.is_lon_included {
-            self.is_lon_included = false;
-            self.numeric_field -= 128;
-        }
-
+        self.numeric_field &= !(IpDataField::Lon as u32);
         self
     }
 
     /// Exclude [`timezone`](struct.IpData.html#structfield.timezone) from request
     pub fn exclude_timezone(mut self) -> Self {
-        if self.is_timezone_included {
-            self.is_timezone_included = false;
-            self.numeric_field -= 256;
-        }
-
+        self.numeric_field &= !(IpDataField::Timezone as u32);
         self
     }
 
     /// Exclude [`offset`](struct.IpData.html#structfield.offset) from request
     pub fn exclude_offset(mut self) -> Self {
-        if self.is_offset_included {
-            self.is_offset_included = false;
-            self.numeric_field -= 33554432;
-        }
-
+        self.numeric_field &= !(IpDataField::Offset as u32);
         self
     }
 
     /// Exclude [`currency`](struct.IpData.html#structfield.currency) from request
     pub fn exclude_currency(mut self) -> Self {
-        if self.is_currency_included {
-            self.is_currency_included = false;
-            self.numeric_field -= 8388608;
-        }
-
+        self.numeric_field &= !(IpDataField::Currency as u32);
         self
     }
 
     /// Exclude [`isp`](struct.IpData.html#structfield.isp) from request
     pub fn exclude_isp(mut self) -> Self {
-        if self.is_isp_included {
-            self.is_isp_included = false;
-            self.numeric_field -= 512;
-        }
-
+        self.numeric_field &= !(IpDataField::Isp as u32);
         self
     }
 
     /// Exclude [`org`](struct.IpData.html#structfield.org) from request
     pub fn exclude_org(mut self) -> Self {
-        if self.is_org_included {
-            self.is_org_included = false;
-            self.numeric_field -= 1024;
-        }
-
+        self.numeric_field &= !(IpDataField::Org as u32);
         self
     }
 
     /// Exclude [`as_field`](struct.IpData.html#structfield.as_field) from request
     pub fn exclude_as_field(mut self) -> Self {
-        if self.is_as_field_included {
-            self.is_as_field_included = false;
-            self.numeric_field -= 2048;
-        }
-
+        self.numeric_field &= !(IpDataField::AsField as u32);
         self
     }
 
     /// Exclude [`asname`](struct.IpData.html#structfield.asname) from request
     pub fn exclude_asname(mut self) -> Self {
-        if self.is_asname_included {
-            self.is_asname_included = false;
-            self.numeric_field -= 4194304;
-        }
-
+        self.numeric_field &= !(IpDataField::Asname as u32);
         self
     }
 
     /// Exclude [`reverse`](struct.IpData.html#structfield.reverse) from request
     pub fn exclude_reverse(mut self) -> Self {
-        if self.is_reverse_included {
-            self.is_reverse_included = false;
-            self.numeric_field -= 4096;
-        }
-
+        self.numeric_field &= !(IpDataField::Reverse as u32);
         self
     }
 
     /// Exclude [`mobile`](struct.IpData.html#structfield.mobile) from request
     pub fn exclude_mobile(mut self) -> Self {
-        if self.is_mobile_included {
-            self.is_mobile_included = false;
-            self.numeric_field -= 65536;
-        }
-
+        self.numeric_field &= !(IpDataField::Mobile as u32);
         self
     }
 
     /// Exclude [`proxy`](struct.IpData.html#structfield.proxy) from request
     pub fn exclude_proxy(mut self) -> Self {
-        if self.is_proxy_included {
-            self.is_proxy_included = false;
-            self.numeric_field -= 131072;
-        }
-
+        self.numeric_field &= !(IpDataField::Proxy as u32);
         self
     }
 
     /// Exclude [`hosting`](struct.IpData.html#structfield.hosting) from request
     pub fn exclude_hosting(mut self) -> Self {
-        if self.is_hosting_included {
-            self.is_hosting_included = false;
-            self.numeric_field -= 16777216;
-        }
-
+        self.numeric_field &= !(IpDataField::Hosting as u32);
         self
     }
 
     /// Exclude [`query`](struct.IpData.html#structfield.query) from request
     pub fn exclude_query(mut self) -> Self {
-        if self.is_query_included {
-            self.is_query_included = false;
-            self.numeric_field -= 8192;
-        }
-
+        self.numeric_field &= !(IpDataField::Query as u32);
         self
     }
 
     /// Set custom language for [`IpData`]
     pub fn set_language(mut self, language: IpApiLanguage) -> Self {
         self.language = language;
-
         self
     }
 }
@@ -943,30 +765,7 @@ impl IpApiConfig {
 /// Create an empty config to create your own from scratch
 pub fn generate_empty_config() -> IpApiConfig {
     IpApiConfig {
-        numeric_field: 32768,
-        is_continent_included: false,
-        is_continent_code_included: false,
-        is_country_included: false,
-        is_country_code_included: false,
-        is_region_included: false,
-        is_region_name_included: false,
-        is_city_included: false,
-        is_district_included: false,
-        is_zip_included: false,
-        is_lat_included: false,
-        is_lon_included: false,
-        is_timezone_included: false,
-        is_offset_included: false,
-        is_currency_included: false,
-        is_isp_included: false,
-        is_org_included: false,
-        is_as_field_included: false,
-        is_asname_included: false,
-        is_reverse_included: false,
-        is_mobile_included: false,
-        is_proxy_included: false,
-        is_hosting_included: false,
-        is_query_included: false,
+        numeric_field: IpDataField::Message as u32,
         language: IpApiLanguage::En,
     }
 }
@@ -974,30 +773,13 @@ pub fn generate_empty_config() -> IpApiConfig {
 /// Generate minimum config that includes only important fields
 pub fn generate_minimum_config() -> IpApiConfig {
     IpApiConfig {
-        numeric_field: 41976594,
-        is_continent_included: false,
-        is_continent_code_included: false,
-        is_country_included: false,
-        is_country_code_included: true,
-        is_region_included: false,
-        is_region_name_included: false,
-        is_city_included: true,
-        is_district_included: false,
-        is_zip_included: false,
-        is_lat_included: false,
-        is_lon_included: false,
-        is_timezone_included: true,
-        is_offset_included: true,
-        is_currency_included: true,
-        is_isp_included: true,
-        is_org_included: false,
-        is_as_field_included: false,
-        is_asname_included: false,
-        is_reverse_included: false,
-        is_mobile_included: false,
-        is_proxy_included: false,
-        is_hosting_included: false,
-        is_query_included: false,
+        numeric_field: IpDataField::Message as u32
+            | IpDataField::CountryCode as u32
+            | IpDataField::City as u32
+            | IpDataField::Timezone as u32
+            | IpDataField::Offset as u32
+            | IpDataField::Currency as u32
+            | IpDataField::Isp as u32,
         language: IpApiLanguage::En,
     }
 }
@@ -1005,30 +787,30 @@ pub fn generate_minimum_config() -> IpApiConfig {
 /// Generate maximum config that includes all fields
 pub fn generate_maximum_config() -> IpApiConfig {
     IpApiConfig {
-        numeric_field: 66830335,
-        is_continent_included: true,
-        is_continent_code_included: true,
-        is_country_included: true,
-        is_country_code_included: true,
-        is_region_included: true,
-        is_region_name_included: true,
-        is_city_included: true,
-        is_district_included: true,
-        is_zip_included: true,
-        is_lat_included: true,
-        is_lon_included: true,
-        is_timezone_included: true,
-        is_offset_included: true,
-        is_currency_included: true,
-        is_isp_included: true,
-        is_org_included: true,
-        is_as_field_included: true,
-        is_asname_included: true,
-        is_reverse_included: true,
-        is_mobile_included: true,
-        is_proxy_included: true,
-        is_hosting_included: true,
-        is_query_included: true,
+        numeric_field: IpDataField::Message as u32
+            | IpDataField::Continent as u32
+            | IpDataField::ContinentCode as u32
+            | IpDataField::Country as u32
+            | IpDataField::CountryCode as u32
+            | IpDataField::Region as u32
+            | IpDataField::RegionName as u32
+            | IpDataField::City as u32
+            | IpDataField::District as u32
+            | IpDataField::Zip as u32
+            | IpDataField::Lat as u32
+            | IpDataField::Lon as u32
+            | IpDataField::Timezone as u32
+            | IpDataField::Offset as u32
+            | IpDataField::Currency as u32
+            | IpDataField::Isp as u32
+            | IpDataField::Org as u32
+            | IpDataField::AsField as u32
+            | IpDataField::Asname as u32
+            | IpDataField::Reverse as u32
+            | IpDataField::Mobile as u32
+            | IpDataField::Proxy as u32
+            | IpDataField::Hosting as u32
+            | IpDataField::Query as u32,
         language: IpApiLanguage::En,
     }
 }
