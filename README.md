@@ -55,8 +55,8 @@ async fn main() {
 
   println!(
     "1.1.1.1 belongs to `{}` and 8.8.8.8 belongs to `{}`",
-    ip_batch_data.get(0).unwrap().isp.as_ref().unwrap(),
-    ip_batch_data.get(1).unwrap().isp.as_ref().unwrap(),
+    ip_batch_data.first().unwrap().isp.as_ref().unwrap(),
+    ip_batch_data.last().unwrap().isp.as_ref().unwrap(),
   );
 }
 ```
