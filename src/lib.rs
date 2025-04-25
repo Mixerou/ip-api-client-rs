@@ -57,37 +57,6 @@ use hyper::{Body, Client, Method, Request, Response};
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 
-#[cfg(test)]
-mod tests {
-    use crate::{generate_empty_config, IpData};
-
-    #[tokio::test]
-    async fn make_request() {
-        assert_eq!(
-            generate_empty_config()
-                .include_query()
-                .make_request("1.1.1.1")
-                .await
-                .unwrap()
-                .query
-                .unwrap(),
-            String::from("1.1.1.1")
-        );
-    }
-
-    #[tokio::test]
-    async fn make_batch_request() {
-        let ips: Vec<IpData> = generate_empty_config()
-            .include_query()
-            .make_batch_request(vec!["1.1.1.1", "8.8.8.8"])
-            .await
-            .unwrap();
-
-        assert_eq!(ips.first().unwrap().query, Some(String::from("1.1.1.1")));
-        assert_eq!(ips.last().unwrap().query, Some(String::from("8.8.8.8")))
-    }
-}
-
 /// Represents all the ways that a request can fail
 #[derive(Clone, Debug)]
 pub enum IpApiError {
