@@ -58,7 +58,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::json;
 
 /// Represents all the ways that a request can fail
-#[derive(Clone, Debug)]
+#[derive(Clone, Eq, PartialEq, Debug)]
 pub enum IpApiError {
     /// Incorrect IP address or non-existent domain
     ///

@@ -6,8 +6,18 @@ async fn make_batch_request() {
         .include_query()
         .make_batch_request(vec!["1.1.1.1", "8.8.8.8"])
         .await
-        .unwrap();
+        .expect("Failed to make a batch request");
 
-    assert_eq!(ips.first().unwrap().query, Some(String::from("1.1.1.1")));
-    assert_eq!(ips.last().unwrap().query, Some(String::from("8.8.8.8")))
+    assert_eq!(
+        ips.first()
+            .expect("Failed to get the first item from the batch response")
+            .query,
+        Some(String::from("1.1.1.1"))
+    );
+    assert_eq!(
+        ips.last()
+            .expect("Failed to get the last item from the batch response")
+            .query,
+        Some(String::from("8.8.8.8"))
+    )
 }

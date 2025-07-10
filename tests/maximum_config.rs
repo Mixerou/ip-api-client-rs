@@ -5,7 +5,7 @@ async fn make_maximum_request() {
     let response = generate_maximum_config()
         .make_request("1.1.1.1")
         .await
-        .unwrap();
+        .expect("Failed to make a request");
 
     assert!(response.continent.is_some());
     assert!(response.continent_code.is_some());
@@ -60,7 +60,7 @@ async fn make_all_excluded_request() {
         .exclude_query()
         .make_request("1.1.1.1")
         .await
-        .unwrap();
+        .expect("Failed to make a request");
 
     assert!(response.continent.is_none());
     assert!(response.continent_code.is_none());

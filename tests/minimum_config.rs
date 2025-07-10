@@ -5,7 +5,7 @@ async fn make_minimum_request() {
     let response = generate_minimum_config()
         .make_request("1.1.1.1")
         .await
-        .unwrap();
+        .expect("Failed to make a request");
 
     assert!(response.continent.is_none());
     assert!(response.continent_code.is_none());

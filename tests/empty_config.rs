@@ -5,7 +5,7 @@ async fn make_empty_request() {
     let response = generate_empty_config()
         .make_request("1.1.1.1")
         .await
-        .unwrap();
+        .expect("Failed to make a request");
 
     assert!(response.continent.is_none());
     assert!(response.continent_code.is_none());
@@ -60,7 +60,7 @@ async fn make_all_included_request() {
         .include_query()
         .make_request("1.1.1.1")
         .await
-        .unwrap();
+        .expect("Failed to make a request");
 
     assert!(response.continent.is_some());
     assert!(response.continent_code.is_some());
